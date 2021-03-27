@@ -42,8 +42,8 @@ data:
   POSTGRES_USER: app_admin
   POSTGRES_DATABASES: cms,audit,keycloak,nats
 
-  POSTGRES_DB_CONTENT: app_cms
-  POSTGRES_USER_CONTENT: app_cms
+  POSTGRES_DB_CMS: app_cms
+  POSTGRES_USER_CMS: app_cms
 
   POSTGRES_DB_AUDIT: app_audit
   POSTGRES_USER_AUDIT: app_audit
