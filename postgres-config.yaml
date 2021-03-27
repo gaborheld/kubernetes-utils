@@ -28,7 +28,7 @@ data:
     		dbvarname=POSTGRES_DB_${db^^}
     		uservarname=POSTGRES_USER_${db^^}
     		passwordvarname=POSTGRES_PASSWORD_${db^^}
-    		create_user_and_database $dbvarname $uservarname $passwordvarname
+    		create_user_and_database ${!dbvarname} ${!uservarname} ${!passwordvarname}
     	done
     	echo "Multiple databases created"
     fi
