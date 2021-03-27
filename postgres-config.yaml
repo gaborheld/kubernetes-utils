@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-postgresql-setup
+  namespace: app
+data:
+  docker-entrypoint-initdb.d: |
+    #!/bin/bash
+
+    set -e
+    set -u
+
+    function create_user_and_database() {
+    	local database=$1
+    	local user=$2
+    	local password=$3
+    	echo "Creating user '$user' and database '$database'"
+    	psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
+    	    CREATE USER $user WITH PASSWORD '$password';
+    	    CREATE DATABASE $database;
+    	    GRANT ALL PRIVILEGES ON DATABASE $database TO $user;
+    EOSQL
+    }
+
+    if [ -n "$POSTGRES_DATABASES" ]; then
+    	echo "Multiple database creation requested: $POSTGRES_DATABASES"
+    	for db in $(echo $POSTGRES_DATABASES | tr ',' ' '); do
+    		dbvarname=POSTGRES_DB_${db^^}
+    		uservarname=POSTGRES_USER_${db^^}
+    		passwordvarname=POSTGRES_PASSWORD_${db^^}
+    		create_user_and_database $dbvarname $uservarname $passwordvarname
+    	done
+    	echo "Multiple databases created"
+    fi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-postgresql
+  namespace: app
+data:
+  POSTGRES_USER: app_admin
+  POSTGRES_DATABASES: cms,audit,keycloak,nats
+
+  POSTGRES_DB_CONTENT: app_cms
+  POSTGRES_USER_CONTENT: app_cms
+
+  POSTGRES_DB_AUDIT: app_audit
+  POSTGRES_USER_AUDIT: app_audit
+
+  POSTGRES_DB_KEYCLOAK: app_keycloak
+  POSTGRES_USER_KEYCLOAK: app_keycloak
+
+  POSTGRES_DB_NATS: app_nats
+  POSTGRES_USER_NATS: app_nats
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-postgresql
+  namespace: app
+type: Opaque
+data:
+  POSTGRES_PASSWORD: password1
+  POSTGRES_PASSWORD_CMS: password2
+  POSTGRES_PASSWORD_AUDIT: password3
+  POSTGRES_PASSWORD_KEYCLOAK: password4
+  POSTGRES_PASSWORD_NATS: password5
