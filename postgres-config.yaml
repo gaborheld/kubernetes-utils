@@ -4,7 +4,7 @@ metadata:
   name: app-postgresql-setup
   namespace: app
 data:
-  docker-entrypoint-initdb.d: |
+  setup-databases.sh: |
     #!/bin/bash
 
     set -e
